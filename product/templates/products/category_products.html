@@ -1,0 +1,51 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+
+{% block title %}{{category.category}}{% endblock title %}
+
+{% block header %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">{{category.category}}</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Best Products Are Here!</p>
+        </div>
+    </div>
+</header>
+{% endblock header %}
+
+
+{% block main %}
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+            {% for product in products %}
+                <div class="col mb-5">
+                    <div class="card h-100">
+                        {% if product.is_sale %}
+                        <div class="badge bg-dark text-white position-absolute" style="top: 0.5rem; right: 0.5rem">Sale</div>
+                        {% endif %}
+                        <img class="card-img-top" src="{{ product.tumbnail.url }}" alt="{{product.name}}" />
+                        <div class="card-body p-4">
+                            <div class="text-center">
+                                <h5 class="fw-bolder">{{product.name}}</h5>
+                                {% if product.is_sale %}
+                                <span class="text-muted text-decoration-line-through">${{product.price|intcomma}}</span>
+                                ${{product.sale_price}}
+                                {% else %}
+                                ${{product.price|intcomma}}
+                                {% endif %}
+                                <br>
+                                {{product.category}}
+                            </div>
+                        </div>
+                        <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                            <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="{% url 'product:product_detail' product.slug %}">View options</a></div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}  
+        </div>
+    </div>
+</section>
+{% endblock main %}

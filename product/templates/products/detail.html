@@ -1,0 +1,235 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+
+{% block title %}{{product.name}}{% endblock title %}
+
+{% block main %}
+<section class="py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="row gx-4 gx-lg-5 align-items-center">
+            <div class="col-md-6">
+                <div class="mb-4">
+                    <img id="mainImage" class="img-fluid rounded" 
+                         src="{% if product.tumbnail %}{{ product.tumbnail.url }}{% else %}https://dummyimage.com/600x700/dee2e6/6c757d.jpg{% endif %}" 
+                         alt="{{product.name}}" style="max-height: 500px; width: 100%; object-fit: contain;">
+                </div>
+                
+                {% if product.productimage_set.all %}
+                <div class="thumbnail-gallery d-flex flex-wrap gap-2 mt-3">
+                    <div class="thumbnail-item border p-1" style="cursor: pointer; width: 80px; height: 80px;">
+                        <img src="{% if product.tumbnail %}{{ product.tumbnail.url }}{% else %}https://dummyimage.com/600x700/dee2e6/6c757d.jpg{% endif %}" 
+                             class="w-100 h-100 object-fit-cover"
+                             onclick="changeMainImage(this.src)" 
+                             alt="{{product.name}} thumbnail">
+                    </div>
+                    
+                    {% for image in product.productimage_set.all %}
+                    <div class="thumbnail-item border p-1" style="cursor: pointer; width: 80px; height: 80px;">
+                        <img src="{{ image.images.url }}" 
+                             class="w-100 h-100 object-fit-cover"
+                             onclick="changeMainImage(this.src)" 
+                             alt="Product image {{ forloop.counter }}">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6">
+                <div class="small mb-1">{{product.slug}}</div>
+                <h1 class="display-5 fw-bolder">{{product.name}}</h1>
+                <div class="fs-5 mb-5">
+                    {% if product.is_sale %}
+                    <span class="text-muted text-decoration-line-through">${{product.price|intcomma}}</span>
+                    ${{product.sale_price}}
+                    {% else %}
+                    ${{product.price|intcomma}}
+                    {% endif %}
+                </div>
+                <p class="lead">{{product.description}}</p>
+                <p class="lead">{{product.info}}</p>
+                
+                <div class="mb-3">
+                    <p class="lead">Color:</p>
+                    <select class="form-select" id="cart-color">
+                        {% for color in product.color.all %}
+                            <option value="{{ color.id }}">{{ color.color }}</option>
+                        {% endfor %}    
+                    </select>
+                </div>
+                <p class="lead">Category: {{product.category}}</p>
+                
+                <div class="d-flex gap-3">
+                    {% if product.quantity != 0 %}
+                    <button class="btn btn-outline-dark flex-shrink-0" type="button" 
+                            value="{{ product.id }}" id="add-cart">
+                        <i class="bi-cart-fill me-1"></i>
+                        Add to cart
+                    </button>
+                    <form method="POST" action="{% url 'product:favourite_product' product.slug %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger">
+                          {% if request.user in product.favourites.all %}
+                          💔 
+                          {% else %}
+                          ❤️
+                          {% endif %}
+                        </button>
+                      </form>
+                    {% else %}
+                      <p class="lead" style="color: red;">Out Of Stock</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="py-5 bg-light">
+    <div class="container px-4 px-lg-5 mt-5">
+        <h2 class="fw-bolder mb-4">New Arrivals</h2>
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+            {% for product in newarrivals %}
+            <div class="col mb-5">
+                <div class="card h-100">
+                    {% if newarrival.is_sale %}
+                    <div class="badge bg-dark text-white position-absolute" style="top: 0.5rem; right: 0.5rem">Sale</div>
+                    {% endif %}
+                    <img class="card-img-top" src="{{ product.tumbnail.url }}" alt="{{product.name}}" />
+                    <div class="card-body p-4">
+                        <div class="text-center">
+                            <h5 class="fw-bolder">{{product.name}}</h5>
+                            {% if product.is_sale %}
+                            <span class="text-muted text-decoration-line-through">${{product.price|intcomma}}</span>
+                            ${{product.sale_price}}
+                            {% else %}
+                            ${{product.price|intcomma}}
+                            {% endif %}
+                            <br>
+                            {{product.category}}
+                        </div>
+                    </div>
+                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="{% url 'product:product_detail' product.slug %}">View options</a></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<section class="py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <h2 class="fw-bolder mb-4">Comments({{comments.count}})</h2>
+        <div class="row gx-4 gx-lg-5">
+            {% for comment in comments %}
+            <div class="col-12 mb-4">
+                <div class="card p-3 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="text-primary mb-0">
+                                <small class="text-muted">@{{comment.author.username}}</small>
+                            </h5>
+                            <small class="text-muted">{{comment.date|naturalday}}</small>
+                        </div>
+                        {% if user == comment.author %}
+                        <div class="btn-group">
+                            <a href="{% url 'product:comment_edit' comment.slug %}" 
+                            class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'product:comment_delete' comment.slug %}" 
+                            class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <hr>
+                    <p class="mb-0">{{comment.comment}}</p>
+                </div>
+            </div>
+            {% empty %}
+            <div class="alert alert-info">Not Comment Yet</div>
+            {% endfor %}
+        </div>
+        {% if user.is_authenticated %}
+        <div class="mt-5">
+            <h4 class="mb-3">New Comment</h4>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-floating mb-3">
+                    <textarea 
+                        name="comment" 
+                        class="form-control" 
+                        placeholder=""
+                        style="height: 100px"
+                        required></textarea>
+                    <label>Write Your Comment Here:</label>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-send me-2"></i>Submit
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <div class="alert alert-warning mt-4">
+            <a href="{% url 'accounts:login' %}?next={{request.path}}" class="alert-link">You Should Login First</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<script>
+    function changeMainImage(newSrc) {
+        document.getElementById('mainImage').src = newSrc;
+        
+        const mainImg = document.getElementById('mainImage');
+        mainImg.style.opacity = '0.5';
+        setTimeout(() => {
+            mainImg.style.opacity = '1';
+        }, 200);
+    }
+
+    $(document).on('click', '#add-cart', function(e){
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '{% url "cart:cart_add" %}',
+            data: {
+                product_id: $('#add-cart').val(),
+                product_color: $('#cart-color').val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                action: 'post'
+            },
+            success: function(json) {
+                $('#cart-quantity').text(json.quantity);
+                alert('Product added to cart!');
+            },
+            error: function(xhr, errmsg, err) {
+                console.log(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    });
+    
+</script>
+
+<style>
+    .tumbnail-item:hover {
+        border-color: #0d6efd !important;
+        transform: scale(1.05);
+        transition: all 0.2s ease;
+    }
+    
+    .object-fit-cover {
+        object-fit: cover;
+    }
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    }
+
+</style>
+{% endblock main %}
+

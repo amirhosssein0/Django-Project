@@ -1,0 +1,84 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+
+{% block title %}Order Details - {{ order.id }}{% endblock %}
+
+{% block header %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Order Details</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Order #{{ order.id }}</p>
+        </div>
+    </div>
+</header>
+{% endblock %}
+
+{% block main %}
+<section class="py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="card shadow-sm border-0 rounded-3 mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Order Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6>Order Summary</h6>
+                        <p><strong>Order Date:</strong> {{ order.date_ordered|date:"Y-m-d H:i" }}</p>
+                        <p><strong>Status:</strong> 
+                            <span class="badge 
+                                {% if order.status == 'delivered' %}bg-success
+                                {% elif order.status == 'canceled' %}bg-danger
+                                {% else %}bg-warning text-dark{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </p>
+                        <p><strong>Total Amount:</strong> ${{ order.amount_paid|intcomma }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Shipping Information</h6>
+                        <p><strong>Recipient:</strong> {{ order.full_name }}</p>
+                        <p><strong>Address:</strong> {{ order.address|linebreaks }}</p>
+                    </div>
+                </div>
+
+                <h5 class="mt-4">Order Items</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ item.product.thumbnail.url }}" 
+                                             alt="{{ item.product.name }}"
+                                             style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px;">
+                                        {{ item.product.name }}
+                                    </div>
+                                </td>
+                                <td>${{ item.price|intcomma }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>${{ item.get_total|intcomma }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <a href="{% url 'accounts:profile' user.pk %}" class="btn btn-dark">
+            <i class="fas fa-arrow-left me-2"></i> Back to Profile
+        </a>
+    </div>
+</section>
+{% endblock %}

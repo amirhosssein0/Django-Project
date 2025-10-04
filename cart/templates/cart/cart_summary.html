@@ -1,0 +1,147 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+
+{% block title %}Cart{% endblock title %}
+
+{% block header %}
+<header class="bg-dark py-5">
+<div class="container px-4 px-lg-5 my-5">
+    <div class="text-center text-white">
+        <h1 class="display-4 fw-bolder">Cart</h1>
+        <p class="lead fw-normal text-white-50 mb-0">Manage Your Cart Here</p>
+    </div>
+</div>
+</header>
+{% endblock header %}
+
+{% block main %}
+<section class="py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        {% for item in cart_products %}
+        <div class="row gx-4 gx-lg-5 align-items-center mb-4">
+            <div class="col-md-6">
+                <img class="img-fluid rounded" 
+                     src="{% if item.product.tumbnail %}{{ item.product.tumbnail.url }}{% else %}https://dummyimage.com/600x700/dee2e6/6c757d.jpg{% endif %}" 
+                     alt="{{ item.product.name }}" style="max-height: 300px; width: 100%; object-fit: contain;">
+            </div>
+            <div class="col-md-6">
+                <h2>{{ item.product.name }}</h2>
+                {% if item.is_sale %}
+                    <p>
+                        Price: 
+                        <span class="text-muted text-decoration-line-through">${{ item.original_price|intcomma }}</span>
+                        ${{ item.price|intcomma }}
+                    </p>
+                {% else %}
+                    <p>Price: ${{ item.price|intcomma }}</p>
+                {% endif %}
+                <p>Color: {{ item.color_name }}</p>
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <p class="mb-0">Quantity: {{ item.quantity }} / {{ item.product.quantity }}</p>
+                    <button class="btn btn-sm btn-outline-secondary update-quantity" 
+                            data-action="increase" 
+                            data-product-id="{{ item.product.id }}"
+                            {% if item.quantity >= item.product.quantity %}disabled{% endif %}>+</button>
+                    <button class="btn btn-sm btn-outline-secondary update-quantity" 
+                            data-action="decrease" 
+                            data-product-id="{{ item.product.id }}">-</button>
+                </div>                
+                <p>Total: ${{ item.total_price|intcomma }}</p>
+                <button class="btn btn-danger remove-item" 
+                        data-product-id="{{ item.product.id }}">Remove</button>
+            </div>
+        </div>
+        <hr>
+        {% empty %}
+        <div class="alert alert-info">Your cart is empty</div>
+        {% endfor %}
+        <div class="row mt-5">
+            <div class="col-md-6 offset-md-6">
+                <div class="card border-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">Order Summary</h5>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="fw-bold">Total:</span>
+                            <span class="fw-bold">${{ total_cart_price|floatformat:2 }}</span>
+                        </div>
+                        <a href="{% if request.session.cart %}{% url 'payment:checkout' %}{% else %}#{% endif %}" class="btn btn-dark w-100 py-2">
+                            Proceed to Checkout
+                        </a>
+                    </div>
+                </div>                
+            </div>
+        </div>
+    </div>
+</section>
+<br>
+<script>
+$(document).ready(function() {
+    $(document).on('click', '.update-quantity', function(e) {
+        e.preventDefault();
+        var product_id = $(this).data('product-id');
+        var action = $(this).data('action');
+        var url = action === 'increase' ? '{% url "cart:cart_add" %}' : '{% url "cart:cart_remove" %}';
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {
+                product_id: product_id,
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                action: 'post'
+            },
+            success: function(json) {
+                if (json.success) {
+                    $('#cart-quantity').text(json.quantity);
+                    $(`.update-quantity[data-product-id="${product_id}"]`).siblings('p.mb-0').text(`Quantity: ${json.item_quantity}`);
+                    location.reload();
+                } else {
+                    alert('Error: ' + (json.error || 'Unknown error occurred'));
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                console.log(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    });
+    
+    $(document).on('click', '.remove-item', function(e) {
+        e.preventDefault();
+        var product_id = $(this).data('product-id');
+        
+        $.ajax({
+            type: 'POST',
+            url: '{% url "cart:cart_delete" %}',
+            data: {
+                product_id: product_id,
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                action: 'post'
+            },
+            success: function(json) {
+                if (json.success) {
+                    $('#cart-quantity').text(json.quantity);
+                    location.reload();
+                } else {
+                    alert('Error: ' + (json.error || 'Unknown error occurred'));
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                console.log(xhr.status + ": " + xhr.responseText);
+                alert('An error occurred while removing the item.');
+            }
+        });
+    });
+});
+</script>   
+{% endblock main %}
+
+
+
+
+
+
+
+
+
+
+

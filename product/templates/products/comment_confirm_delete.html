@@ -1,0 +1,46 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+
+{% block title %}comment{% endblock title %}
+
+{% block header %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Shop</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Write Your Comment For This Product</p>
+        </div>
+    </div>
+</header>
+{% endblock header %}
+
+
+{% block main %}
+<br><br><br><br>
+<div class="container my-5">
+    <div class="card shadow">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">Delete Comment</h4>
+        </div>
+        <div class="card-body">
+            <p class="lead">Are You Sure You Want Delete Your Comment?</p>
+            <blockquote class="blockquote mb-4">
+                <p>"{{ object.comment }}"</p>
+                <footer class="blockquote-footer">{{ object.author.username }}</footer>
+            </blockquote>
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash3 me-2"></i>Delete
+                    </button>
+                    <a href="{{ object.product.get_absolute_url }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left-circle me-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<br><br><br><br>
+{% endblock main %}

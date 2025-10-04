@@ -1,0 +1,167 @@
+{% extends "base/base.html" %}
+
+{% block title %}Profile{% endblock title %}
+
+{% block header %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Profile</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Manage Your Account Here</p>
+        </div>
+    </div>
+</header>
+{% endblock header %}
+
+{% block main %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-dark text-white text-center py-3">
+                    <h3 class="mb-0">Account's Information</h3>
+                </div>
+                
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="position-relative">
+                                <img src="{% if user.profile.avatar %}{{user.profile.avatar.url}}{% else %}/media/avatars/avatar.jpg{% endif %}" 
+                                     class="img-thumbnail rounded-circle border-dark"
+                                     alt="Avatar"
+                                     style="width: 180px; height: 180px; object-fit: cover;">
+                                <div class="mt-3 d-flex gap-3 justify-content-center">
+                                    <a href="{% url 'accounts:update_profile' %}" class="btn btn-sm btn-outline-dark me-2">
+                                        <i class="fas fa-edit me-1"></i> Update
+                                    </a>
+                                    <a href="{% url 'accounts:delete_account' %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash me-1"></i>Delete Account 
+                                    </a>
+                                    <a href="{% url 'accounts:password_change' %}" class="btn btn-sm btn-outline-dark me-2">
+                                        <i class="fas fa-edit me-1"></i>Change Password 
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row mb-3">
+                                <div class="col-sm-4 fw-bold">Full Name:</div>
+                                <div class="col-sm-8">
+                                    {{ user.profile.first_name }} {{ user.profile.last_name }}
+                                    {% if not user.profile.first_name and not user.profile.last_name %}
+                                        <span class="text-muted">Not Register</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <hr>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4 fw-bold">Username:</div>
+                                <div class="col-sm-8">{{ user.username }}</div>
+                            </div>
+                            <hr>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4 fw-bold">Email:</div>
+                                <div class="col-sm-8">{{ user.email }}</div>
+                            </div>
+                            <hr>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4 fw-bold">Phone Number:</div>
+                                <div class="col-sm-8">
+                                    {% if user.profile.phone %}
+                                        {{ user.profile.phone }}
+                                    {% else %}
+                                        <span class="text-muted">Not Register</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <hr>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-sm-4 fw-bold">Address:</div>
+                                    <div class="col-sm-8">
+                                        {% if user.profile.address %}
+                                            {{ user.profile.address }}
+                                        {% else %}
+                                            <span class="text-muted">Not Register</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card shadow-lg border-0 rounded-3 mt-4">
+                    <div class="card-header bg-dark text-white text-center py-3">
+                        <h3 class="mb-0">Last Orders</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <h3>Posted Orders</h3>
+                        {% if posted_orders  %}
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order in posted_orders %}
+                                        <tr>
+                                            <td>#{{ order.id }}</td>
+                                            <td>{{ order.date_ordered|date:"Y-m-d" }}</td>
+                                            <td>${{ order.amount_paid }}</td>
+                                            <td><span class="badge bg-success">{{ order.get_status_display }}</span></td>
+                                            <td><a href="{% url 'payment:order_detail' order.id %}" class="btn btn-sm btn-info">View</a></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">No Posted Orders Yet.</div>
+                        {% endif %}
+                    
+                        <h3 class="mt-4">Other Orders</h3>
+                        {% if other_orders %}
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order in other_orders %}
+                                        <tr>
+                                            <td>#{{ order }}</td>
+                                            <td>{{ order.date_ordered|date:"Y-m-d" }}</td>
+                                            <td>${{ order.amount_paid }}</td>
+                                            <td><span class="badge bg-warning text-dark">{{ order.get_status_display }}</span></td>
+                                            <td><a href="{% url 'payment:order_detail' order.id %}" class="btn btn-sm btn-info">View</a></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">No Other Orders Yet.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main %}
+    

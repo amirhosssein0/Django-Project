@@ -1,0 +1,61 @@
+{% extends "base/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Sign Up{% endblock title %}
+
+{% block header %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Sign Up</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Create Account Here</p>
+        </div>
+    </div>
+</header>
+{% endblock header %}
+
+
+{% block main %}
+<br><br>
+    <div class="form-content my-3 p-3">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-5">
+                    <div class="card shadow-lg border-0 rounded-lg mt-0 mb-3">
+                        <div class="card-header justify-content-center">
+                            <div id="error_div"></div>
+                          <h3 class="font-weight-light my-4 text-center">Sign Up</h3>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                {% csrf_token %}
+                                <div class="form-row">
+                                    <div class="col-md-10 offset-md-1">
+                                    <div class="form-group">
+                                      {{form}}
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                                <div class="form-row">
+                                  <div class="col-md-10 offset-md-1">
+                                    <div class="form-group mt-0 mb-1">
+                                        <button type="submit" class="col-md-12 btn btn-dark">Sign Up
+                                        </button>
+                                    </div>
+                                 </div>
+                               </div>
+                            </form>
+                        </div>
+                        <div class="card-footer text-center">
+                            <div class="small">
+                                <a href="{% url 'accounts:login' %}">Do You Have Account?</a><br><br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+  </div>
+<br><br>
+{% endblock main %}

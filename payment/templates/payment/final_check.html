@@ -1,0 +1,111 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+
+{% block title %}Final Check{% endblock title %}
+
+{% block header %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Order Confirmation</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Review your order before payment</p>
+        </div>
+    </div>
+</header>
+{% endblock header %}
+
+{% block main %}
+<section class="py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0 rounded-3 mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Order Items</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for item in cart_products %}
+                        <div class="row gx-4 gx-lg-5 align-items-center mb-4">
+                            <div class="col-md-4">
+                                <img class="img-fluid rounded" 
+                                     src="{% if item.product.tumbnail %}{{ item.product.tumbnail.url }}{% else %}https://dummyimage.com/600x700/dee2e6/6c757d.jpg{% endif %}" 
+                                     alt="{{ item.product.name }}" style="max-height: 150px; width: 100%; object-fit: contain;">
+                            </div>
+                            <div class="col-md-8">
+                                <h5>{{ item.product.name }}</h5>
+                                {% if item.is_sale %}
+                                    <p class="mb-1">
+                                        Price: 
+                                        <span class="text-muted text-decoration-line-through">${{ item.original_price|intcomma }}</span>
+                                        ${{ item.price|intcomma }}
+                                    </p>
+                                {% else %}
+                                    <p class="mb-1">Price: ${{ item.price|intcomma }}</p>
+                                {% endif %}
+                                <p class="mb-1">Color: {{ item.color_name }}</p>
+                                <p class="mb-1">Quantity: {{ item.quantity }}</p>
+                                <p class="mb-1">Total: ${{ item.total_price|intcomma }}</p>
+                            </div>
+                        </div>
+                        {% if not forloop.last %}<hr>{% endif %}
+                        {% empty %}
+                        <div class="alert alert-info">Your cart is empty</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Shipping Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Contact Information</h6>
+                                <p>{{ shipping_info.full_name }}</p>
+                                <p>{{ shipping_info.email }}</p>
+                                <p>{{ shipping_info.shiping_phone }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Shipping Address</h6>
+                                <p>{{ shipping_info.shiping_address }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm border-dark sticky-top" style="top: 20px;">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Subtotal:</span>
+                            <span>${{ total_cart_price|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Shipping:</span>
+                            <span>Free</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Total:</span>
+                            <span>${{ total_cart_price|floatformat:2 }}</span>
+                        </div>
+                        <form method="POST" action="{% url 'payment:process_order' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success w-100 mt-3 py-2">
+                                Confirm & Pay
+                            </button>
+                        </form>
+                        <a href="{% url 'payment:checkout' %}" class="btn btn-outline-dark w-100 mt-2 py-2">
+                            Back to Checkout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock main %}

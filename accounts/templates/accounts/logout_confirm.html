@@ -1,0 +1,36 @@
+{% extends "base/base.html" %}
+
+{% block title %}Logout{% endblock title %}
+
+{% block header %}
+<header class="bg-dark py-5">
+<div class="container px-4 px-lg-5 my-5">
+    <div class="text-center text-white">
+        <h1 class="display-4 fw-bolder">Logout</h1>
+        <p class="lead fw-normal text-white-50 mb-0">Manage Your Account Here</p>
+    </div>
+</div>
+</header>
+{% endblock header %}
+
+{% block main %}
+<br><br><br><br><br>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Logout</h2>
+                    <p>If You Logout, You Should Login Again!</p>
+                    <form method="POST" action="{% url 'accounts:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Logout</button>
+                        <a href="{{ next }}" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br><br><br><br><br><br><br>
+{% endblock main %}

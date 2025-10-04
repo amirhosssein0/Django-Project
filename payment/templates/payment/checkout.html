@@ -1,0 +1,84 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+
+{% block title %}Checkout{% endblock title %}
+
+{% block header %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Checkout</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Complete your order</p>
+        </div>
+    </div>
+</header>
+{% endblock header %}
+
+{% block main %}
+<section class="py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0 rounded-3 mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Order Items</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for item in cart_products %}
+                        <div class="row gx-4 gx-lg-5 align-items-center mb-4">
+                            <div class="col-md-4">
+                                <img class="img-fluid rounded" 
+                                     src="{% if item.product.tumbnail %}{{ item.product.tumbnail.url }}{% else %}https://dummyimage.com/600x700/dee2e6/6c757d.jpg{% endif %}" 
+                                     alt="{{ item.product.name }}" style="max-height: 150px; width: 100%; object-fit: contain;">
+                            </div>
+                            <div class="col-md-8">
+                                <h5>{{ item.product.name }}</h5>
+                                {% if item.is_sale %}
+                                    <p class="mb-1">
+                                        Price: 
+                                        <span class="text-muted text-decoration-line-through">${{ item.original_price|intcomma }}</span>
+                                        ${{ item.price|intcomma }}
+                                    </p>
+                                {% else %}
+                                    <p class="mb-1">Price: ${{ item.price|intcomma }}</p>
+                                {% endif %}
+                                <p class="mb-1">Color: {{ item.color_name }}</p>
+                                <p class="mb-1">Quantity: {{ item.quantity }}</p>
+                            </div>
+                        </div>
+                        {% if not forloop.last %}<hr>{% endif %}
+                        {% empty %}
+                        <div class="alert alert-info">Your cart is empty</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm border-dark">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Subtotal:</span>
+                            <span>${{ total_cart_price|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Shipping:</span>
+                            <span>Free</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Total:</span>
+                            <span>${{ total_cart_price|floatformat:2 }}</span>
+                        </div>
+                        <a href="{% url 'payment:shiping_form' %}" class="btn btn-dark w-100 mt-3 py-2">
+                            Proceed to Shipping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock main %}

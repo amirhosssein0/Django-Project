@@ -1,0 +1,106 @@
+{% extends "base/base.html" %}
+
+{% block title %}Update Profile{% endblock %}
+
+{% block header %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Update Profile</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Update Ypur Profile Here</p>
+        </div>
+    </div>
+</header>
+{% endblock %}
+
+{% block main %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-dark text-white py-3">
+                    <h3 class="mb-0 text-center">Update Profile</h3>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">Login Information</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{form}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">Personal Information</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ profile_form.first_name.id_for_label }}" class="form-label">First Name:</label>
+                                    {{ profile_form.first_name }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ profile_form.last_name.id_for_label }}" class="form-label">Last Name:</label>
+                                    {{ profile_form.last_name }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ profile_form.phone.id_for_label }}" class="form-label">Phone Number:</label>
+                                    {{ profile_form.phone }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ profile_form.address.id_for_label }}" class="form-label">Address:</label>
+                                    {{ profile_form.address }}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ profile_form.avatar.id_for_label }}" class="form-label">Avatar</label>
+                                <div class="d-flex align-items-center">
+                                    {% if user.profile.avatar %}
+                                        <img src="{{ user.profile.avatar.url }}" 
+                                             class="rounded-circle me-3" 
+                                             width="60" 
+                                             height="60" 
+                                             alt="Avatar">
+                                    {% endif %}
+                                    {{ profile_form.avatar }}
+                                </div>
+                                <small class="text-muted">max:2Mb with <strong>JPG PNG JPEG</strong> formats</small>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="reset" class="btn btn-dark">
+                                <i class="fas fa-times me-1"></i>Reset 
+                            </button>
+                            <button type="submit" class="btn btn-dark">
+                                <i class="fas fa-save me-1"></i>Save 
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        padding: 10px 15px;
+        border-radius: 5px;
+    }
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+    .invalid-feedback {
+        font-size: 0.85rem;
+    }
+    .border-bottom {
+        border-color: #dee2e6 !important;
+    }
+</style>
+{% endblock %}

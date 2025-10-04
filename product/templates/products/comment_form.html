@@ -1,0 +1,42 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+
+{% block title %}Commnet{% endblock title %}
+
+{% block header %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Comment</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Write Your Comment For This Product</p>
+        </div>
+    </div>
+</header>
+{% endblock header %}
+
+
+{% block main %}
+<br><br><br>
+<div class="container my-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Edit Comment</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check2-circle me-2"></i>Save
+                    </button>
+                    <a href="{{ object.product.get_absolute_url }}" class="btn btn-danger">
+                        <i class="bi bi-x-circle me-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<br><br><br>
+{% endblock main %}
